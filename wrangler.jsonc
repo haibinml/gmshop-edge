@@ -1,0 +1,39 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "gmshop-edge",
+	"main": "src/server-entry.ts",
+	"compatibility_date": "2026-07-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"placement": { "mode": "smart" },
+	"observability": { "enabled": true },
+	"cache": { "enabled": true },
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "gmshop-edge",
+			"migrations_dir": "drizzle","database_id": "c1aed1fe-0211-440a-8514-130de5d9b839"
+		}
+	],
+	"r2_buckets": [{ "binding": "FILES", "bucket_name": "gmshop-edge-files","preview_bucket_name": "gmshop-edge-files" }],
+	"send_email": [{ "name": "EMAIL" }],
+	"kv_namespaces": [
+		{ "binding": "CACHE","id": "749597dbcaaa4c26a942b6b9bc37bd33" }
+	],
+	"queues": {
+		"producers": [
+			{ "binding": "COMMERCE_QUEUE", "queue": "gmshop-edge-commerce" }
+		],
+		"consumers": [
+			{
+				"queue": "gmshop-edge-commerce",
+				"max_batch_size": 10,
+				"max_batch_timeout": 1,
+				"max_concurrency": 4,
+				"max_retries": 8,
+				"retry_delay": 15,
+				"dead_letter_queue": "gmshop-edge-commerce-dlq"
+			}
+		]
+	},
+	"triggers": { "crons": ["* * * * *"] }
+}
